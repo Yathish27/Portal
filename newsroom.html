@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plurall AI Newsroom</title>
+    <script>
+        const PAGE_MAP = {
+            'dashboard': 'Dashboard.html',
+            'settings': 'settings.html',
+            'content_analysis': 'content-analysis.html',
+            'industry_analysis': 'industry-analysis.html',
+            'newsroom': 'newsroom.html'
+        };
+
+        window.changePage = function(page) {
+            const file = PAGE_MAP[page];
+            if (file) {
+                window.location.assign(file);
+            } else {
+                console.error(`Unknown page requested: ${page}`);
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #3b82f6;
+            --color-secondary: #8b5cf6;
+            --color-success: #10b981;
+            --color-text-dark: #1f2937;
+            --color-text-subtle: #6b7280;
+            --color-bg-light: #f9fafb;
+            --color-white: #ffffff;
+            --border-radius: 0.75rem;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+
+            /* Newsroom specific colors */
+            --color-card-bg: #fff;
+            --color-date-text: #9ca3af;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- Global Layout --- */
+        .dashboard-layout { display: flex; min-height: 100vh; }
+        .main-content { flex-grow: 1; padding: 2.5rem; max-width: 100%; }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 288px; background-color: var(--color-white); border-right: 1px solid #e5e7eb;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03); padding: 1.5rem 0; display: flex;
+            flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+        }
+        .sidebar-logo { padding: 0 1.5rem; margin-bottom: 2rem; }
+        .sidebar-logo img { max-width: 100%; height: auto; width: 150px; display: block; }
+        .sidebar-nav { padding: 0 1rem; flex-grow: 1; }
+        .nav-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #9ca3af; margin-bottom: 0.75rem; padding: 0 0.5rem; }
+        .nav-item {
+            display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: var(--border-radius);
+            color: var(--color-text-subtle); margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-item:hover:not(.active) { background-color: #f3f4f6; color: var(--color-primary); }
+        .nav-item.active {
+            background-color: var(--color-primary); color: var(--color-white); font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+        .nav-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+
+        /* --- Content Analysis Specific Styles --- */
+        .page-title { font-size: 2.25rem; font-weight: 800; color: var(--color-text-dark); margin-bottom: 2rem; }
+        
+        /* Newsroom Page Specific Styles */
+        .news-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+        .search-bar { display: flex; align-items: center; background-color: #e5e7eb; border-radius: 0.5rem; padding: 0.5rem 1rem; width: 250px; }
+        .search-bar svg { color: var(--color-text-subtle); margin-right: 0.5rem; }
+        .search-bar input { background: transparent; border: none; outline: none; flex-grow: 1; color: var(--color-text-dark); }
+        .search-bar input::placeholder { color: var(--color-text-subtle); }
+
+        .featured-news-carousel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .featured-news-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .featured-news-item img, .featured-news-item video {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            filter: brightness(0.6);
+            transition: transform 0.3s ease;
+        }
+        .featured-news-item:hover img, .featured-news-item:hover video {
+            transform: scale(1.05);
+        }
+
+        .featured-news-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            color: var(--color-white);
+        }
+
+        .featured-news-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-news-desc {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: none;
+            color: white;
+            padding: 1rem 0.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .carousel-nav:hover { background-color: rgba(0, 0, 0, 0.5); }
+        .carousel-nav.prev { left: 1rem; }
+        .carousel-nav.next { right: 1rem; }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+        }
+        .carousel-dot.active { background-color: var(--color-white); }
+
+
+        .news-section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .news-card {
+            background-color: var(--color-card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .news-card:hover { transform: translateY(-5px); }
+        .news-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .news-card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .news-card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+        }
+        .news-card-desc {
+            font-size: 0.875rem;
+            color: var(--color-text-subtle);
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .news-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--color-date-text);
+        }
+        .news-card-footer .author { display: flex; align-items: center; }
+        .news-card-footer .author-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 0.5rem; }
+        .news-card-footer .bookmark-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--color-date-text);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .news-card-footer .bookmark-icon:hover { color: var(--color-primary); }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1023px) {
+            .sidebar { display: none; }
+            .main-content { padding: 1.5rem; }
+            .news-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .page-title { margin-bottom: 1rem; }
+            .featured-news-carousel { grid-template-columns: 1fr; }
+            .featured-news-item img, .featured-news-item video { height: 250px; }
+            .featured-news-overlay { padding: 1.5rem; }
+            .featured-news-title { font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.jpg" alt="Plurall AI Logo" title="Plurall AI Logo">
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-section-title">Detection & Analysis</div>
+            <div class="nav-links">
+                <div class="nav-item" onclick="changePage('dashboard')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Dashboard</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>Real-Time Monitoring</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>User Verification</span>
+                </div>
+                <div class="nav-item" onclick="changePage('content_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Content Analysis</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>Internal Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('industry_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg><span>Industry Analysis</span>
+                </div>
+                <div class="nav-item active" onclick="changePage('newsroom')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>Newsroom</span>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-nav" style="flex-grow: 0; margin-top: 1rem;">
+            <div class="nav-section-title">Account</div>
+            <div class="nav-links">
+                <div class="nav-item" onclick="changePage('settings')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Settings</span>
+                </div>
+                <div class="nav-item" onclick="alert('Help functionality not implemented.')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>Help</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    <span>GaussMass 1.0</span>
+                </div>
+                <div class="nav-item" style="color: #ef4444;" onclick="alert('Logged out (functionality removed)')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg><span>Logout</span>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 1.5rem;">
+            <div style="background-color: #f5f3ff; padding: 1rem; border-radius: var(--border-radius); text-align: center;">
+                <p style="font-size: 0.875rem; font-weight: 600; color: #6d28d9; margin-bottom: 0.5rem;">Get More Personalizations</p>
+                <button style="width: 100%; background-color: #8b5cf6; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.5rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s;">Upgrade Now</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="news-header">
+            <h1 class="page-title">Newsroom</h1>
+            <div class="search-bar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search">
+            </div>
+        </div>
+
+        <div class="featured-news-carousel">
+            <div class="featured-news-item">
+                <video src="kamala.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                <div class="featured-news-overlay">
+                    <h2 class="featured-news-title">Kamala Harris Deepfake Removed By TikTok After Going Viral</h2>
+                    <p class="featured-news-desc">The fake video, which shows the Vice President making a misleading statement, was swiftly taken down...</p>
+                </div>
+            </div>
+            <div class="featured-news-item">
+                <video src="ferrari.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                <div class="featured-news-overlay">
+                    <h2 class="featured-news-title">'I Need to Identify You': How One Question Saved Ferrari</h2>
+                    <p class="featured-news-desc">Benedetto Vigna Was Impersonated On A Call Using AI Software. Large Companies Are Being Increasingly Targeted With Deepfakes...</p>
+                </div>
+                <button class="carousel-nav prev">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button class="carousel-nav next">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                <div class="carousel-dots">
+                    <span class="carousel-dot active"></span>
+                    <span class="carousel-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="news-section-title">Stay Up To Date</h2>
+        <div class="news-grid">
+            <div class="news-card">
+                <img src="uploaded:senate-bill.jpg" alt="The Senate Unanimously Passes A Bill">
+                <div class="news-card-content">
+                    <h3 class="news-card-title">The US Senate Unanimously Passes A Bill</h3>
+                    <p class="news-card-desc">If Signed Into Law, It Would Give Victims A 10-Year Window To Sue For Damages.</p>
+                    <div class="news-card-footer">
+                        <div class="author">
+                            <img src="uploaded:james-avatar.jpg" alt="Author James" class="author-avatar">
+                            <span>James</span>
+                        </div>
+                        <p>August 18, 2022</p>
+                        <svg class="bookmark-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="news-card">
+                <img src="uploaded:anti-deepfake-tech.jpg" alt="Senate Unanimously Passes Anti-Deepfake">
+                <div class="news-card-content">
+                    <h3 class="news-card-title">Senate Unanimously Passes Anti-Deepfake</h3>
+                    <p class="news-card-desc">Choosing The Right Laptop For Programming Can Be A Tough Process. It's Easy To Get Confused...</p>
+                    <div class="news-card-footer">
+                        <div class="author">
+                            <img src="uploaded:louis-avatar.jpg" alt="Author Louis" class="author-avatar">
+                            <span>Louis Hoebregts</span>
+                        </div>
+                        <p>July 25, 2022</p>
+                        <svg class="bookmark-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="news-card">
+                <img src="uploaded:defiance-act.jpg" alt="The Defiance Act Passes In The Senate">
+                <div class="news-card-content">
+                    <h3 class="news-card-title">The Defiance Act Passes In The Senate</h3>
+                    <p class="news-card-desc">The Defiance Act Would Give Victims The Ability To Sue Anyone Who Creates, Shares Or Receives...</p>
+                    <div class="news-card-footer">
+                        <div class="author">
+                            <img src="uploaded:mary-avatar.jpg" alt="Author Mary" class="author-avatar">
+                            <span>Mary</span>
+                        </div>
+                        <p>July 14, 2022</p>
+                        <svg class="bookmark-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plurall AI Real-Time Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    <script>
+        const PAGE_MAP = {
+            'dashboard': 'Dashboard.html',
+            'notifications': 'notifications.html',
+            'real_time_monitoring': 'real-time-monitoring.html',
+            'upload': 'upload.html',
+            'user_verification': 'user-verification.html',
+            'content_analysis': 'content-analysis.html',
+            'internal_analysis': 'internal-analysis.html',
+            'industry_analysis': 'industry-analysis.html',
+            'newsroom': 'newsroom.html',
+            'settings': 'settings.html',
+            'help': 'help.html',
+            'gaussmass': 'gaussmass.html',
+            'logout': 'logout.html'
+        };
+
+        window.changePage = function(page) {
+            const file = PAGE_MAP[page];
+            if (file) {
+                window.location.assign(file);
+            } else {
+                console.error(`Unknown page requested: ${page}`);
+            }
+        }
+
+        window.onload = function() {
+            initializeLineChart();
+            initializeDoughnutChart();
+        };
+
+        function initializeLineChart() {
+            const ctx = document.getElementById('callsMadeChart');
+            if (!ctx) return;
+
+            const style = getComputedStyle(document.documentElement);
+            const averageColor = '#F7C65C'; // Orange from image
+            const insurifyColor = '#5ECFFF'; // Teal from image
+            const subtleColor = style.getPropertyValue('--color-text-subtle').trim();
+
+            if (ctx.chart) ctx.chart.destroy();
+            ctx.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['8am', '10am', '12pm', '2pm', '4pm'],
+                    datasets: [
+                        {
+                            label: 'Insurify',
+                            data: [30, 45, 60, 90, 115.3],
+                            borderColor: insurifyColor,
+                            backgroundColor: insurifyColor + '40', // Light fill for gradient effect
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 0,
+                            borderWidth: 3,
+                            pointBackgroundColor: insurifyColor,
+                        },
+                        {
+                            label: 'Average',
+                            data: [20, 35, 50, 70, 90.6],
+                            borderColor: averageColor,
+                            backgroundColor: averageColor + '40', // Light fill for gradient effect
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 0,
+                            borderWidth: 3,
+                            pointBackgroundColor: averageColor,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 10,
+                                color: subtleColor,
+                                callback: function(value) {
+                                    return value === 100 ? '100' : value;
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                color: '#e0e0e0',
+                                drawBorder: false,
+                            },
+                            title: {
+                                display: true,
+                                text: 'Call Made',
+                                color: subtleColor,
+                                font: {
+                                    size: 14,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: subtleColor
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeDoughnutChart() {
+            const ctx = document.getElementById('activitiesBreakdownChart');
+            if (!ctx) return;
+
+            const style = getComputedStyle(document.documentElement);
+            const totalTransactions = 2900;
+            const greenSegment = 0.7; // ~70% based on visual
+            const orangeSegment = 0.3; // ~30% based on visual
+
+            if (ctx.chart) ctx.chart.destroy();
+            ctx.chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending'],
+                    datasets: [{
+                        data: [totalTransactions * greenSegment, totalTransactions * orangeSegment],
+                        backgroundColor: [
+                            '#22C55E', // Green from image
+                            '#F97316'  // Orange from image
+                        ],
+                        hoverOffset: 4,
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed.toLocaleString() + ' transactions';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const width = chart.width;
+                        const height = chart.height;
+                        ctx.restore();
+                        const fontSize = (height / 114).toFixed(2);
+                        ctx.font = '700 ' + fontSize + 'em Inter';
+                        ctx.textBaseline = 'middle';
+                        const text = '2900';
+                        const textY = height / 2 - 10;
+
+                        // Second line
+                        const fontSizeSub = (height / 200).toFixed(2);
+                        ctx.font = '400 ' + fontSizeSub + 'em Inter';
+                        const subText = 'Transactions';
+                        const subTextY = height / 2 + 15;
+
+                        const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                        const subTextX = Math.round((width - ctx.measureText(subText).width) / 2);
+
+                        ctx.fillStyle = '#1f2937'; // text-dark
+                        ctx.fillText(text, textX, textY);
+                        ctx.fillStyle = '#6b7280'; // text-subtle
+                        ctx.fillText(subText, subTextX, subTextY);
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #3b82f6;
+            --color-secondary: #8b5cf6;
+            --color-success: #10b981;
+            --color-text-dark: #1f2937;
+            --color-text-subtle: #6b7280;
+            --color-bg-light: #f9fafb;
+            --color-white: #ffffff;
+            --border-radius: 0.75rem;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-light);
+            margin: 0;
+            padding: 0;
+            color: var(--color-text-dark);
+        }
+
+        /* --- Global Layout --- */
+        .dashboard-layout { display: flex; min-height: 100vh; }
+        .main-content { flex-grow: 1; padding: 2.5rem; max-width: 100%; }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 288px; background-color: var(--color-white); border-right: 1px solid #e5e7eb;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03); padding: 1.5rem 0; display: flex;
+            flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+        }
+        .sidebar-logo { padding: 0 1.5rem; margin-bottom: 2rem; }
+        .sidebar-logo img { max-width: 100%; height: auto; width: 150px; display: block; }
+        .sidebar-nav { padding: 0 1rem; flex-grow: 1; }
+        .nav-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #9ca3af; margin-bottom: 0.75rem; padding: 0 0.5rem; }
+        .nav-item {
+            display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: var(--border-radius);
+            color: var(--color-text-subtle); margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-item:hover:not(.active) { background-color: #f3f4f6; color: var(--color-primary); }
+        .nav-item.active {
+            background-color: var(--color-primary); color: var(--color-white); font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+        .nav-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+        .sidebar .search-bar {
+            padding: 0 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .sidebar .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--color-text-dark);
+        }
+        .sidebar .search-bar input::placeholder {
+            color: var(--color-text-subtle);
+        }
+
+        /* --- Page Specific Styles --- */
+        .page-title { font-size: 2.25rem; font-weight: 800; color: var(--color-text-dark); margin-bottom: 2rem; }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Main chart 2/3, activities breakdown 1/3 */
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background-color: var(--color-white); padding: 1.5rem; border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card); border: 1px solid #f3f4f6;
+        }
+        .card-title {
+            font-size: 1.25rem; font-weight: 600; color: var(--color-text-dark); margin-bottom: 1rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .line-chart-card { grid-column: 1 / 3; } /* Spans two columns for the large chart */
+        .chart-container { height: 350px; position: relative; }
+
+        /* Company List Table */
+        .company-list-card {
+            grid-column: 1;
+        }
+        .company-list-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .company-list-table th, .company-list-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+        }
+        .company-list-table th {
+            font-weight: 600;
+            color: var(--color-text-subtle);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            background-color: #f9fafb;
+        }
+        .company-list-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .company-name { font-weight: 600; color: var(--color-text-dark); }
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 700;
+            color: white;
+        }
+        .status-icon.danger { background-color: #EF4444; } /* Red */
+        .status-icon.warning { background-color: #F97316; } /* Orange */
+        .status-icon.success { background-color: #22C55E; } /* Green */
+        .status-icon svg { width: 14px; height: 14px; stroke: white; stroke-width: 2; }
+
+
+        /* Activities Breakdown Chart */
+        .activities-breakdown-card {
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .doughnut-chart-container {
+            width: 200px; /* Fixed width/height for Doughnut Chart */
+            height: 200px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1023px) {
+            .sidebar { display: none; }
+            .main-content { padding: 1.5rem; }
+            .grid-container {
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+            }
+            .line-chart-card, .company-list-card, .activities-breakdown-card {
+                grid-column: 1 / -1; /* Full width */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.jpg" alt="Plurall AI Logo" title="Plurall AI Logo">
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search">
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-section-title">Detection & Analysis</div>
+            <div class="nav-links">
+                <div class="nav-item" onclick="changePage('dashboard')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="changePage('notifications')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notifications</span>
+                </div>
+                <div class="nav-item active" onclick="changePage('real_time_monitoring')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg><span>Real-Time Monitoring</span>
+                </div>
+                <div class="nav-item" onclick="changePage('upload')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg><span>Upload</span>
+                </div>
+                <div class="nav-item" onclick="changePage('user_verification')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>User Verification</span>
+                </div>
+                <div class="nav-item" onclick="changePage('content_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Content Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('internal_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 14.8A5 5 0 0 1 18 20h-7.17C6.63 20 2 15.54 2 10.96V4.4A.4.4 0 0 1 2.4 4h5.19c.14 0 .28.05.38.15l1.39 1.57c.18.2.43.32.7.32h4.52c.27 0 .52.12.7.32l1.39 1.57c.1.1.24.15.38.15H21.6c.22 0 .4.18.4.4v3.13C22 12.38 21.72 13.78 21.2 14.8Z"/><circle cx="12" cy="14" r="2"/></svg><span>Internal Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('industry_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg><span>Industry Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('newsroom')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg><span>Newsroom</span>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-nav" style="flex-grow: 0; margin-top: 1rem;">
+            <div style="background-color: #f5f3ff; padding: 1rem; border-radius: var(--border-radius); text-align: center; margin-bottom: 1rem;">
+                <p style="font-size: 0.875rem; font-weight: 600; color: #6d28d9; margin-bottom: 0.5rem;">Get More Personalizations</p>
+                <button style="width: 100%; background-color: #8b5cf6; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.5rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s;">Upgrade Now</button>
+            </div>
+            <div class="nav-section-title">Account</div>
+            <div class="nav-links">
+                <div class="nav-item" onclick="changePage('settings')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Settings</span>
+                </div>
+                <div class="nav-item" onclick="changePage('help')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>Help</span>
+                </div>
+                <div class="nav-item" onclick="changePage('gaussmass')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>GaussMass 1.0</span>
+                </div>
+                <div class="nav-item" style="color: #ef4444;" onclick="changePage('logout')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg><span>Logout</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <h1 class="page-title">Real-Time Monitoring</h1>
+
+        <div class="grid-container">
+            <div class="card line-chart-card">
+                <div class="chart-container">
+                    <canvas id="callsMadeChart"></canvas>
+                    <div style="position: absolute; top: 10px; right: 20px; font-weight: 700; font-size: 1.5rem; color: #5ECFFF;">115.3</div>
+                    <div style="position: absolute; top: 10px; right: 80px; font-weight: 700; font-size: 1.5rem; color: #F7C65C;">90.6</div>
+                    <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); display: flex; gap: 2rem;">
+                        <span style="display: flex; align-items: center; font-size: 0.9rem; color: var(--color-text-subtle);">
+                            <span style="display:inline-block; width:10px; height:10px; background-color:#F7C65C; border-radius:50%; margin-right: 5px;"></span>
+                            Average
+                        </span>
+                        <span style="display: flex; align-items: center; font-size: 0.9rem; color: var(--color-text-subtle);">
+                            <span style="display:inline-block; width:10px; height:10px; background-color:#5ECFFF; border-radius:50%; margin-right: 5px;"></span>
+                            Insurify
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card company-list-card">
+                <h2 class="card-title">Company List</h2>
+                <table class="company-list-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Calls per Day</th>
+                            <th>Repetitive Callers</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox" checked></td>
+                            <td class="company-name">Progressive</td>
+                            <td>450</td>
+                            <td>2,458</td>
+                            <td><span class="status-icon warning">!</span></td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" checked></td>
+                            <td class="company-name">Insurify</td>
+                            <td>390</td>
+                            <td>1,485</td>
+                            <td><span class="status-icon danger">X</span></td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td class="company-name">Berry Insurance</td>
+                            <td>300</td>
+                            <td>1,024</td>
+                            <td><span class="status-icon success">&#10003;</span></td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td class="company-name">Allianz</td>
+                            <td>200</td>
+                            <td>858</td>
+                            <td><span class="status-icon success">&#10003;</span></td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td class="company-name">Clear Blue</td>
+                            <td>180</td>
+                            <td>256</td>
+                            <td><span class="status-icon success">&#10003;</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card activities-breakdown-card">
+                <h2 class="card-title">Activities Break Down</h2>
+                <div class="doughnut-chart-container">
+                    <canvas id="activitiesBreakdownChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

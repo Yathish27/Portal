@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plurall AI Settings & Account Management</title>
+    <!-- Load Chart.js CDN (Needed for the dashboard graphs, even if it's not the default view) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    <!-- 
+        NOTE: All Firebase/Authentication code has been removed. 
+        The application defaults to the Settings view.
+    -->
+    <script>
+        // ----------------------------------------------------
+        // GLOBAL APP SETUP (No Firebase)
+        // ----------------------------------------------------
+        // IMPORTANT: We set the initial page to 'settings' here.
+        let currentPage = 'settings'; 
+        
+        /**
+         * Navigation: Switches between main content views.
+         */
+        window.changePage = function(page) {
+            currentPage = page;
+            const dashboardContent = document.getElementById('dashboard-content');
+            const settingsContent = document.getElementById('settings-content');
+            
+            // Update active state in sidebar
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const navItem = document.getElementById(`nav-${page}`);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+
+            // Show/hide content
+            if (page === 'dashboard') {
+                dashboardContent.style.display = 'block';
+                settingsContent.style.display = 'none';
+                window.initializeCharts(); // Re-initialize charts when loading the dashboard
+            } else if (page === 'settings') {
+                dashboardContent.style.display = 'none';
+                settingsContent.style.display = 'block';
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // CHART, MODAL, AND GEMINI LOGIC (Maintained)
+        // ----------------------------------------------------
+        
+        window.initializeCharts = function() {
+            // Only initialize if the charts elements exist (i.e., we are on the dashboard page)
+            const fraudCtx = document.getElementById('fraudChart');
+            if (!fraudCtx) return;
+
+            const style = getComputedStyle(document.documentElement);
+            const primaryColor = style.getPropertyValue('--color-primary').trim();
+            const successColor = style.getPropertyValue('--color-success').trim();
+            const subtleColor = style.getPropertyValue('--color-text-subtle').trim();
+            const greyColor = '#e5e7eb';
+
+            // Chart 1: Fraudulent Activities Identified Over Time (Line Chart) 
+            // Destroy existing chart instance to prevent Canvas errors
+            if (fraudCtx.chart) fraudCtx.chart.destroy(); 
+            
+            fraudCtx.chart = new Chart(fraudCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    datasets: [{
+                        label: 'Total Identified',
+                        data: [120, 150, 135, 180, 160, 200, 190, 210],
+                        borderColor: primaryColor,
+                        backgroundColor: primaryColor + '22',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointBackgroundColor: primaryColor,
+                        pointHoverRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: greyColor }, ticks: { color: subtleColor } },
+                        x: { grid: { display: false }, ticks: { color: subtleColor } }
+                    }
+                }
+            });
+
+            // Chart 2: Financial Loss Prevented (Bar Chart)
+            const lossCtx = document.getElementById('lossChart');
+            if (lossCtx) {
+                if (lossCtx.chart) lossCtx.chart.destroy();
+                
+                lossCtx.chart = new Chart(lossCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024'],
+                        datasets: [{
+                            label: 'Loss Prevented (k$)',
+                            data: [80, 120, 105, 140],
+                            backgroundColor: successColor,
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true, grid: { color: greyColor },
+                                ticks: { callback: (value) => '$' + value + 'k', color: subtleColor }
+                            },
+                            x: { grid: { display: false }, ticks: { color: subtleColor } }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // --- Gemini LLM Logic ---
+        const apiKey = ""; 
+        const LLM_MODEL = "gemini-2.5-flash-preview-05-20";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${LLM_MODEL}:generateContent?key=${apiKey}`;
+
+        window.retryFetch = async function(url, options, retries = 3) { 
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        if (response.status === 429 && i < retries - 1) {
+                            const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue;
+                        }
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i < retries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        window.openModal = function(title) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('ai-modal').style.display = 'flex';
+            document.getElementById('modal-loading').style.display = 'block';
+            document.getElementById('modal-body').innerHTML = '';
+        }
+
+        window.closeModal = function() {
+            document.getElementById('ai-modal').style.display = 'none';
+        }
+
+        window.showResult = function(text) {
+            document.getElementById('modal-loading').style.display = 'none';
+            document.getElementById('modal-body').innerHTML = text.replace(/\n/g, '<br>');
+        }
+
+        window.showError = function(message) {
+            document.getElementById('modal-loading').style.display = 'none';
+            document.getElementById('modal-body').innerHTML = `<p style="color: #ef4444; font-weight: 600;">Error:</p><p>${message}</p>`;
+        }
+
+        window.analyzeIncident = async function(incidentDescription, incidentCategory) {
+            openModal(`AI Analysis: ${incidentCategory}`);
+            
+            const systemPrompt = `You are a world-class Cybersecurity Analyst specializing in AI-driven fraud detection. Your task is to analyze a fraudulent activity description, categorize the threat level (Low, Medium, High, Critical), and provide a concise, two-part response: 
+1. **ANALYSIS**: Explain in one paragraph the technical mechanism of the fraud (e.g., how AI voice synthesis works or what a deepfake threat entails).
+2. **REMEDIATION**: Provide three immediate, bulleted security steps the client must take to mitigate this specific threat and prevent recurrence. 
+Ensure your tone is professional and actionable. Do not use markdown headers or lists for the main text, only for the bulleted steps.`;
+
+            const userQuery = `Analyze this incident: Category: ${incidentCategory}. Description: "${incidentDescription}"`;
+            
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    }
+                };
+
+                const response = await retryFetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "No analysis generated. The model may have been blocked or returned an empty response.";
+                showResult(formatAnalysis(text));
+
+            } catch (error) {
+                showError(`Failed to connect to the AI analyst service. Details: ${error.message}`);
+            }
+        }
+
+        window.formatAnalysis = function(text) {
+            let formattedText = text;
+            formattedText = formattedText.replace('ANALYSIS:', '<strong>ANALYSIS:</strong>');
+            formattedText = formattedText.replace('REMEDIATION:', '<h2>REMEDIATION:</h2>');
+            formattedText = formattedText.replace(/\*/g, '•');
+            return formattedText;
+        }
+
+        // Initialize on load: Set the initial page to 'settings'
+        window.onload = function() {
+            changePage('settings');
+        };
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #3b82f6; 
+            --color-secondary: #8b5cf6;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-text-dark: #1f2937;
+            --color-text-subtle: #6b7280;
+            --color-bg-light: #f9fafb;
+            --color-white: #ffffff;
+            --border-radius: 0.75rem;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            --shadow-button: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- Global Layout --- */
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 2.5rem;
+            max-width: 100%;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 288px;
+            background-color: var(--color-white);
+            border-right: 1px solid #e5e7eb;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03);
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+        .sidebar-logo { padding: 0 1.5rem; margin-bottom: 2rem; }
+        .sidebar-logo img { max-width: 100%; height: auto; width: 150px; display: block; }
+        .sidebar-nav { padding: 0 1rem; flex-grow: 1; }
+        .nav-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #9ca3af; margin-bottom: 0.75rem; padding: 0 0.5rem; }
+        .nav-item {
+            display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: var(--border-radius);
+            color: var(--color-text-subtle); margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-item:hover:not(.active) { background-color: #f3f4f6; color: var(--color-primary); }
+        .nav-item.active {
+            background-color: var(--color-primary); color: var(--color-white); font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+        .nav-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+        
+        /* --- Dashboard Specific Styles (Metrics, Charts, Tables) --- */
+        .page-title { font-size: 2.25rem; font-weight: 800; color: var(--color-text-dark); margin-bottom: 2rem; }
+        .metric-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; }
+        @media (min-width: 640px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .metric-grid { grid-template-columns: repeat(4, 1fr); } }
+        .metric-card, .card-chart, .card-table, .settings-card {
+            background-color: var(--color-white); padding: 1.5rem; border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card); border: 1px solid #f3f4f6;
+        }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: var(--color-text-dark); margin-bottom: 1rem; }
+        .data-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; margin-top: 2rem; }
+        @media (min-width: 1024px) { .data-grid { grid-template-columns: repeat(2, 1fr); } }
+        /* Table/Chart styles omitted for brevity, see previous versions if needed */
+        
+        /* --- Settings Specific Styles --- */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 2rem;
+        }
+        @media (min-width: 1024px) {
+            .settings-grid { grid-template-columns: 2fr 1fr; }
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 1.5rem;
+            padding-top: 1rem;
+        }
+        .form-row {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            margin-bottom: 0.25rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px;
+        }
+        .account-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .account-header img {
+            width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 1rem;
+        }
+        .account-actions button {
+            background: none; border: none; color: var(--color-primary); font-weight: 600; cursor: pointer; margin-right: 1rem;
+        }
+        .privacy-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f3f4f6;
+        }
+        .privacy-item:last-child { border-bottom: none; }
+        .privacy-details p { font-size: 0.875rem; color: var(--color-text-subtle); line-height: 1.4; }
+        
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--color-primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Admin Access */
+        .admin-list-item {
+            display: flex; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6;
+        }
+        .admin-list-item img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 1rem; }
+        .admin-info { flex-grow: 1; text-align: left; }
+        .admin-info p { margin: 0; line-height: 1.2; }
+        .admin-info .name { font-weight: 600; color: var(--color-text-dark); }
+        .admin-info .role { font-size: 0.8rem; color: var(--color-text-subtle); }
+        
+        /* Subscription Plan */
+        .subscription-grid {
+            display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; margin-top: 1.5rem;
+        }
+        @media (min-width: 768px) { .subscription-grid { grid-template-columns: repeat(3, 1fr); } }
+        .plan-card {
+            border: 1px solid #e5e7eb; padding: 2rem; border-radius: var(--border-radius); text-align: center;
+        }
+        .plan-card.current { border-color: var(--color-secondary); box-shadow: 0 0 0 2px var(--color-secondary); }
+        .plan-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .plan-price { font-size: 2.5rem; font-weight: 800; color: var(--color-secondary); }
+        .plan-meta { font-size: 0.875rem; color: var(--color-text-subtle); margin-bottom: 1.5rem; }
+        .plan-features { text-align: left; margin-bottom: 2rem; }
+        .plan-features li { 
+            list-style: none; display: flex; align-items: center; margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--color-text-dark);
+        }
+        .plan-features svg { width: 18px; height: 18px; color: var(--color-success); margin-right: 0.5rem; flex-shrink: 0; }
+        .plan-button { 
+            width: 100%; padding: 0.75rem; border: none; border-radius: 0.5rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s;
+        }
+        .btn-current { background-color: var(--color-bg-light); color: var(--color-secondary); border: 1px solid var(--color-secondary); }
+        .btn-upgrade { background-color: var(--color-secondary); color: var(--color-white); }
+        .btn-upgrade-secondary { background: linear-gradient(90deg, #8b5cf6, #3b82f6); color: white; }
+        
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 1023px) {
+            .sidebar { display: none; }
+            .main-content { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ---------------------------------------------------- -->
+<!-- MAIN DASHBOARD LAYOUT (Direct Access) -->
+<!-- ---------------------------------------------------- -->
+<div id="dashboard-view" class="dashboard-layout" style="display: flex;">
+
+    <!-- Sidebar Component -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="uploaded:Dark_Icon.png" alt="Plurall AI Logo" title="Plurall AI Logo">
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="sidebar-nav">
+            <div class="nav-section-title">Detection & Analysis</div>
+            <div class="nav-links">
+                <!-- Dashboard Link -->
+                <div id="nav-dashboard" class="nav-item" onclick="changePage('dashboard')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Dashboard</span>
+                </div>
+                <!-- Other Links -->
+                <div class="nav-item">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.375 21a2 2 0 0 0 3.25 0"/></svg>
+                    <span>Notifications</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>Real-Time Monitoring</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utility Navigation -->
+        <div class="sidebar-nav" style="flex-grow: 0; margin-top: 1rem;">
+            <div class="nav-section-title">Account</div>
+            <div class="nav-links">
+                <!-- Settings Link -->
+                <div id="nav-settings" class="nav-item active" onclick="changePage('settings')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    <span>Settings</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    <span>Help</span>
+                </div>
+                <div class="nav-item" style="color: #ef4444;" onclick="alert('Logged out (functionality removed)')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upgrade Callout -->
+        <div style="padding: 1.5rem;">
+            <div style="background-color: #f5f3ff; padding: 1rem; border-radius: var(--border-radius); text-align: center;">
+                <p style="font-size: 0.875rem; font-weight: 600; color: #6d28d9; margin-bottom: 0.5rem;">Get More Personalizations</p>
+                <button style="width: 100%; background-color: #8b5cf6; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.5rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s;">
+                    Upgrade Now
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- DASHBOARD CONTENT (Hidden by default) -->
+        <div id="dashboard-content" style="display: none;">
+            <h1 class="page-title">Dashboard</h1>
+
+            <!-- Metric Cards -->
+            <div class="metric-grid">
+                <!-- Card 1: Fraudulent Activities Identified -->
+                <div class="metric-card"><p class="metric-title">Fraudulent Activities Identified</p><div class="metric-value-wrapper"><div class="metric-value text-blue">160</div><span class="metric-change bg-green-light"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><polyline points="18 15 12 9 6 15"/></svg>12.0%</span></div><p class="metric-desc">Up from past week</p></div>
+                <!-- Card 2: Suspicious Activities Flagged -->
+                <div class="metric-card"><p class="metric-title">Suspicious Activities Flagged</p><div class="metric-value-wrapper"><div class="metric-value text-purple">62</div><span class="metric-change bg-green-light"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><polyline points="18 15 12 9 6 15"/></svg>3.0%</span></div><p class="metric-desc">Up from past week</p></div>
+                <!-- Card 3: Financial Loss Prevented -->
+                <div class="metric-card"><p class="metric-title">Financial Loss Prevented</p><div class="metric-value-wrapper"><div class="metric-value text-green">$120,320</div><span class="metric-change bg-green-light"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><polyline points="18 15 12 9 6 15"/></svg>4.2%</span></div><p class="metric-desc">Up from past week</p></div>
+                <!-- Card 4: Hours Saved -->
+                <div class="metric-card"><p class="metric-title">Hours Saved</p><div class="metric-value-wrapper"><div class="metric-value text-orange">68</div><span class="metric-change bg-green-light"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><polyline points="18 15 12 9 6 15"/></svg>1.8%</span></div><p class="metric-desc">Up from past week</p></div>
+            </div> <!-- /.metric-grid -->
+
+            <!-- Charts and Tables -->
+            <div class="data-grid">
+                <!-- Chart 1: Fraudulent Activities (Line Chart) -->
+                <div class="card-chart">
+                    <h3 class="card-title">Fraudulent Activities Identified Over Time</h3>
+                    <div class="chart-container"><canvas id="fraudChart"></canvas></div>
+                </div>
+                <!-- Chart 2: Financial Loss Prevented (Bar Chart) -->
+                <div class="card-chart">
+                    <h3 class="card-title">Financial Loss Prevented (USD)</h3>
+                    <div class="chart-container"><canvas id="lossChart"></canvas></div>
+                </div>
+
+                <!-- Table: Fraudulent Activities Details -->
+                <div class="card-table data-grid-item" style="grid-column: span 2;">
+                    <h3 class="card-title">Fraudulent Activities Identified - Details</h3>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>Full Name</th><th>Category</th><th>Description</th><th>Date - Time</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr><td>John Smith</td><td>Call</td><td class="col-desc">AI-generated call attempted to include total financial information.</td><td>10.01.2025 - 12:55 PM</td><td><button class="llm-button" onclick="analyzeIncident('AI-generated call attempted to include total financial information.', 'AI Call Fraud')">✨ Analyze</button></td></tr>
+                                <tr><td>Sarah Johnson</td><td>Call</td><td class="col-desc">AI voice used to impersonate a senior executive requesting sensitive data.</td><td>09.30.2025 - 01:25 PM</td><td><button class="llm-button" onclick="analyzeIncident('AI voice used to impersonate a senior executive requesting sensitive data.', 'Voice Impersonation')">✨ Analyze</button></td></tr>
+                                <tr><td>Michael Brown</td><td>Deepfake</td><td class="col-desc">Deepfake audio message threatening a legal threat sent to multiple customers.</td><td>09.28.2025 - 2:30 PM</td><td><button class="llm-button" onclick="analyzeIncident('Deepfake audio message threatening a legal threat sent to multiple customers.', 'Deepfake Audio Threat')">✨ Analyze</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- /.data-grid -->
+        </div>
+        <!-- END DASHBOARD CONTENT -->
+
+
+        <!-- SETTINGS CONTENT (Visible by default in this file) -->
+        <div id="settings-content" style="display: block;">
+            <h1 class="page-title">Settings</h1>
+            
+            <div class="settings-grid">
+                
+                <!-- Left Column (User Account and Privacy) -->
+                <div>
+                    <!-- User Account Card -->
+                    <div class="settings-card" style="margin-bottom: 2rem;">
+                        <h2 class="section-title" style="margin-top: 0;">User Account</h2>
+                        
+                        <div class="account-header">
+                            <img src="https://placehold.co/60x60/8b5cf6/ffffff?text=D" alt="User Avatar">
+                            <div class="account-actions">
+                                <button>Update</button>
+                                <button style="color: #ef4444;">Remove</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row"><label class="form-label">Name</label><input type="text" class="form-input" value="Morty Smith"></div>
+                        <div class="form-row"><label class="form-label">Role</label><input type="text" class="form-input" value="Business Analyst"></div>
+                        <div class="form-row"><label class="form-label">Email</label><input type="email" class="form-input" value="morty@insurify.us"></div>
+                        <div class="form-row"><label class="form-label">Phone Number</label><input type="text" class="form-input" value="English"></div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <div class="form-row" style="flex: 1;"><label class="form-label">City</label><input type="text" class="form-input" value="New York"></div>
+                            <div class="form-row" style="flex: 1;"><label class="form-label">State</label><input type="text" class="form-input" value="NY"></div>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">Country</label>
+                            <select class="form-input form-select">
+                                <option>United States</option>
+                                <option>Canada</option>
+                            </select>
+                        </div>
+
+                        <div style="text-align: right; margin-top: 2rem;">
+                            <button class="btn-upgrade" style="width: 120px; margin-right: 1rem;">Save Changes</button>
+                            <button class="btn-current" style="width: 120px; background-color: #f3f4f6;">Cancel</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Privacy Settings Card -->
+                    <div class="settings-card">
+                        <h2 class="section-title">Privacy Settings</h2>
+                        
+                        <!-- Privacy Item 1 -->
+                        <div class="privacy-item">
+                            <div>
+                                <h4 style="font-size: 1rem; font-weight: 600; margin: 0;">Real-Time Monitoring</h4>
+                                <p>Plurall AI will actively analyze your user and content for fraudulent activities.</p>
+                            </div>
+                            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                        </div>
+                        
+                        <!-- Privacy Item 2 -->
+                        <div class="privacy-item">
+                            <div>
+                                <h4 style="font-size: 1rem; font-weight: 600; margin: 0;">Data Retention</h4>
+                                <p>Plurall AI will retain communication data for a specified period for analysis and compliance purposes.</p>
+                            </div>
+                            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                        </div>
+
+                        <!-- Privacy Item 3 -->
+                        <div class="privacy-item">
+                            <div>
+                                <h4 style="font-size: 1rem; font-weight: 600; margin: 0;">Detailed Reporting</h4>
+                                <p>Plurall AI will provide detailed reports on the analysis of your communications.</p>
+                            </div>
+                            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column (Admin Access and Subscription) -->
+                <div>
+                    <!-- Admin Access Card -->
+                    <div class="settings-card" style="margin-bottom: 2rem;">
+                        <h2 class="section-title" style="margin-top: 0;">Admin Access</h2>
+                        <div style="display: flex; flex-direction: column;">
+                            
+                            <div class="admin-list-item">
+                                <img src="https://placehold.co/40x40/f3f4f6/333?text=AD" alt="Adela Parkson">
+                                <div class="admin-info">
+                                    <p class="name">Adela Parkson</p>
+                                    <p class="role">Product Manager</p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-subtle);"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                            </div>
+                            <div class="admin-list-item">
+                                <img src="https://placehold.co/40x40/f3f4f6/333?text=CM" alt="Christian Mad">
+                                <div class="admin-info">
+                                    <p class="name">Christian Mad</p>
+                                    <p class="role">Product Designer</p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-subtle);"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                            </div>
+                            <div class="admin-list-item">
+                                <img src="https://placehold.co/40x40/f3f4f6/333?text=JS" alt="Jason Statham">
+                                <div class="admin-info">
+                                    <p class="name">Jason Statham</p>
+                                    <p class="role">Business Analyst</p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-subtle);"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subscription Plan Card -->
+                    <h2 class="section-title">Subscription Plan</h2>
+                    <div class="subscription-grid">
+                        
+                        <!-- Basic Plan -->
+                        <div class="plan-card current">
+                            <h3 class="plan-title">Basic</h3>
+                            <p class="plan-price text-secondary">$30,000</p>
+                            <p class="plan-meta">per organization/month, billed monthly</p>
+                            <ul class="plan-features">
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Real-Time Fraud Detection</li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Basic Reporting and Analytics</li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Compliance Support</li>
+                            </ul>
+                            <button class="plan-button btn-current">Current Plan</button>
+                        </div>
+
+                        <!-- Enterprise Plan -->
+                        <div class="plan-card">
+                            <h3 class="plan-title">Enterprise</h3>
+                            <p class="plan-price text-secondary">$50,000</p>
+                            <p class="plan-meta">per user/month, billed annually</p>
+                            <ul class="plan-features">
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Features in Tier 1</li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>API Access</li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Automated Workflow Integration</li>
+                            </ul>
+                            <button class="plan-button btn-upgrade-secondary">Upgrade Now</button>
+                        </div>
+                        
+                        <!-- Big Corporation Plan -->
+                        <div class="plan-card">
+                            <h3 class="plan-title" style="color: #6d28d9;">Big Corp</h3>
+                            <p class="plan-price" style="color: #6d28d9;">Custom</p>
+                            <p class="plan-meta">Contact us for custom pricing</p>
+                            <ul class="plan-features">
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Features in Tier 1 and Tier 2</li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Custom AI Models</li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Full Integration Support</li>
+                            </ul>
+                            <button class="plan-button" style="background-color: #6d28d9; color: white;">Contact Us</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- /.settings-grid -->
+
+        </div>
+        <!-- END SETTINGS CONTENT -->
+        
+        <!-- MODAL STRUCTURE (Used by Gemini Analysis) -->
+        <div id="ai-modal" class="ai-modal-overlay" style="display: none;">
+            <div class="ai-modal-content">
+                <h3 id="modal-title" class="modal-title">AI Incident Analysis</h3>
+                <div id="modal-loading" style="display: none; text-align: center; padding: 2rem;">
+                    <div class="loader"></div>
+                    <p style="margin-top: 1rem; color: var(--color-primary);">Analyzing incident details with Gemini...</p>
+                </div>
+                <div id="modal-body" class="modal-body"></div>
+                <button onclick="closeModal()" class="modal-close-button">Close</button>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+</body>
+</html>

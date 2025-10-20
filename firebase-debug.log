@@ -1,0 +1,276 @@
+[debug] [2025-10-06T22:33:42.092Z] ----------------------------------------------------------------------
+[debug] [2025-10-06T22:33:42.094Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\yathi\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2025-10-06T22:33:42.094Z] CLI Version:   14.18.0
+[debug] [2025-10-06T22:33:42.094Z] Platform:      win32
+[debug] [2025-10-06T22:33:42.094Z] Node Version:  v22.11.0
+[debug] [2025-10-06T22:33:42.095Z] Time:          Mon Oct 06 2025 18:33:42 GMT-0400 (Eastern Daylight Time)
+[debug] [2025-10-06T22:33:42.095Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-06T22:33:42.101Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-06T22:33:42.101Z] > authorizing via signed-in user (yn2426@nyu.edu)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\yathi\OneDrive\Documents\Plurall-Dashboard
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-10-06T22:33:43.504Z] Using project from CLI flag: plurallai
+[debug] [2025-10-06T22:33:43.506Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:33:43.506Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:33:43.508Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/plurallai [none]
+[debug] [2025-10-06T22:33:43.849Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/plurallai 200
+[debug] [2025-10-06T22:33:43.849Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/plurallai {"projectId":"plurallai","projectNumber":"93511943367","displayName":"PlurallAI","name":"projects/plurallai","resources":{"hostingSite":"plurallai"},"state":"ACTIVE","etag":"1_85b2d53b-a278-44f5-8433-ab9eaf52136a"}
+[info] i  Using project plurallai (PlurallAI) 
+[info] 
+=== Hosting Setup
+[debug] [2025-10-06T22:33:43.916Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:33:43.916Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:33:43.916Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/plurallai [none]
+[debug] [2025-10-06T22:33:44.198Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/plurallai 200
+[debug] [2025-10-06T22:33:44.198Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/plurallai {"projectId":"plurallai","projectNumber":"93511943367","displayName":"PlurallAI","name":"projects/plurallai","resources":{"hostingSite":"plurallai"},"state":"ACTIVE","etag":"1_85b2d53b-a278-44f5-8433-ab9eaf52136a"}
+[info] 
+[info] Your public directory is the folder (relative to your project directory) that
+[info] will contain Hosting assets to be uploaded with firebase deploy. If you
+[info] have a build process for your assets, use your build's output directory.
+[info] 
+[debug] [2025-10-06T22:33:52.939Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/releases.json [none]
+[debug] [2025-10-06T22:33:52.987Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/releases.json 200
+[debug] [2025-10-06T22:33:52.987Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/releases.json {"current":{"version":"12.3.0","browserURL":"https://www.gstatic.com/firebasejs/12.3.0/firebase.js","packageURL":"https://www.gstatic.com/firebasejs/12.3.0/firebase.tgz"},"live":{"version":"12.3","browserURL":"https://www.gstatic.com/firebasejs/live/12.3/firebase.js","packageURL":"https://www.gstatic.com/firebasejs/live/12.3/firebase.tgz"},"components":{"ai":"https://www.gstatic.com/firebasejs/12.3.0/firebase-ai.js","analytics":"https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js","app":"https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js","app-check":"https://www.gstatic.com/firebasejs/12.3.0/firebase-app-check.js","auth":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js","auth/cordova":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth/cordova.js","auth/web-extension":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth/web-extension.js","functions":"https://www.gstatic.com/firebasejs/12.3.0/firebase-functions.js","firestore":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js","firestore/lite":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore/lite.js","installations":"https://www.gstatic.com/firebasejs/12.3.0/firebase-installations.js","storage":"https://www.gstatic.com/firebasejs/12.3.0/firebase-storage.js","performance":"https://www.gstatic.com/firebasejs/12.3.0/firebase-performance.js","remote-config":"https://www.gstatic.com/firebasejs/12.3.0/firebase-remote-config.js","messaging":"https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging.js","messaging/sw":"https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging/sw.js","database":"https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js","data-connect":"https://www.gstatic.com/firebasejs/12.3.0/firebase-data-connect.js","firestore.memory":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.memory.js"}}
+[info] +  Wrote public/index.html 
+[info] 
+[info] i  Didn't detect a .git folder. Assuming C:\Users\yathi\OneDrive\Documents\Plurall-Dashboard is the project root. 
+[info] i  Authorizing with GitHub to upload your service account to a GitHub repository's secrets store. 
+[info] 
+[info] Visit this URL on this device to log in:
+[info] https://github.com/login/oauth/authorize?client_id=89cf50f02ac6aaed3484&state=424342327&redirect_uri=http%3A%2F%2Flocalhost%3A9005&scope=read%3Auser%20repo%20public_repo
+[info] 
+[info] Waiting for authentication...
+[debug] [2025-10-06T22:45:11.096Z] >>> [apiv2][query] POST https://github.com/login/oauth/access_token [none]
+[debug] [2025-10-06T22:45:11.099Z] >>> [apiv2][body] POST https://github.com/login/oauth/access_token [stream]
+[debug] [2025-10-06T22:45:11.268Z] <<< [apiv2][status] POST https://github.com/login/oauth/access_token 200
+[debug] [2025-10-06T22:45:11.268Z] <<< [apiv2][body] POST https://github.com/login/oauth/access_token {"access_token":"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","token_type":"bearer","scope":"read:user,repo"}
+[debug] [2025-10-06T22:45:11.275Z] >>> [apiv2][query] GET https://api.github.com/user [none]
+[debug] [2025-10-06T22:45:11.485Z] <<< [apiv2][status] GET https://api.github.com/user 200
+[debug] [2025-10-06T22:45:11.486Z] <<< [apiv2][body] GET https://api.github.com/user {"login":"Yathish27","id":48596315,"node_id":"MDQ6VXNlcjQ4NTk2MzE1","avatar_url":"https://avatars.githubusercontent.com/u/48596315?v=4","gravatar_id":"","url":"https://api.github.com/users/Yathish27","html_url":"https://github.com/Yathish27","followers_url":"https://api.github.com/users/Yathish27/followers","following_url":"https://api.github.com/users/Yathish27/following{/other_user}","gists_url":"https://api.github.com/users/Yathish27/gists{/gist_id}","starred_url":"https://api.github.com/users/Yathish27/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Yathish27/subscriptions","organizations_url":"https://api.github.com/users/Yathish27/orgs","repos_url":"https://api.github.com/users/Yathish27/repos","events_url":"https://api.github.com/users/Yathish27/events{/privacy}","received_events_url":"https://api.github.com/users/Yathish27/received_events","type":"User","user_view_type":"private","site_admin":false,"name":"Yathish N V","company":"New York University","blog":"","location":"New York","email":null,"hireable":null,"bio":"New York University","twitter_username":null,"notification_email":null,"public_repos":33,"public_gists":0,"followers":2,"following":11,"created_at":"2019-03-15T14:57:07Z","updated_at":"2025-10-01T22:12:07Z","private_gists":0,"total_private_repos":3,"owned_private_repos":1,"disk_usage":107116,"collaborators":0,"two_factor_authentication":true,"plan":{"name":"pro","space":976562499,"collaborators":0,"private_repos":9999}}
+[info] 
+[info] +  Success! Logged into GitHub as Yathish27 
+[info] 
+[debug] [2025-10-06T22:45:27.343Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (C:\Users\yathi\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\create-prompt.js:101:37)
+    at Interface.emit (node:events:518:28)
+    at Interface.emit (node:domain:489:12)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1124:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:263:20)
+    at ReadStream.emit (node:events:530:35)
+    at ReadStream.emit (node:domain:489:12)
+    at emitKeys (node:internal/readline/utils:370:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-10-06T22:45:32.336Z] ----------------------------------------------------------------------
+[debug] [2025-10-06T22:45:32.341Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\yathi\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2025-10-06T22:45:32.341Z] CLI Version:   14.18.0
+[debug] [2025-10-06T22:45:32.341Z] Platform:      win32
+[debug] [2025-10-06T22:45:32.342Z] Node Version:  v22.11.0
+[debug] [2025-10-06T22:45:32.342Z] Time:          Mon Oct 06 2025 18:45:32 GMT-0400 (Eastern Daylight Time)
+[debug] [2025-10-06T22:45:32.342Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-06T22:45:32.350Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-06T22:45:32.351Z] > authorizing via signed-in user (yn2426@nyu.edu)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\yathi\OneDrive\Documents\Plurall-Dashboard
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-10-06T22:46:46.671Z] Using project from CLI flag: plurallai
+[debug] [2025-10-06T22:46:46.672Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:46:46.672Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:46:46.674Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/plurallai [none]
+[debug] [2025-10-06T22:46:47.024Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/plurallai 200
+[debug] [2025-10-06T22:46:47.024Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/plurallai {"projectId":"plurallai","projectNumber":"93511943367","displayName":"PlurallAI","name":"projects/plurallai","resources":{"hostingSite":"plurallai"},"state":"ACTIVE","etag":"1_85b2d53b-a278-44f5-8433-ab9eaf52136a"}
+[info] i  Using project plurallai (PlurallAI) 
+[info] 
+=== Hosting Setup
+[debug] [2025-10-06T22:46:47.098Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:46:47.098Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:46:47.098Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/plurallai [none]
+[debug] [2025-10-06T22:46:47.236Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/plurallai 200
+[debug] [2025-10-06T22:46:47.236Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/plurallai {"projectId":"plurallai","projectNumber":"93511943367","displayName":"PlurallAI","name":"projects/plurallai","resources":{"hostingSite":"plurallai"},"state":"ACTIVE","etag":"1_85b2d53b-a278-44f5-8433-ab9eaf52136a"}
+[info] 
+[info] Your public directory is the folder (relative to your project directory) that
+[info] will contain Hosting assets to be uploaded with firebase deploy. If you
+[info] have a build process for your assets, use your build's output directory.
+[info] 
+[debug] [2025-10-06T22:46:56.148Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/releases.json [none]
+[debug] [2025-10-06T22:46:56.188Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/releases.json 200
+[debug] [2025-10-06T22:46:56.189Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/releases.json {"current":{"version":"12.3.0","browserURL":"https://www.gstatic.com/firebasejs/12.3.0/firebase.js","packageURL":"https://www.gstatic.com/firebasejs/12.3.0/firebase.tgz"},"live":{"version":"12.3","browserURL":"https://www.gstatic.com/firebasejs/live/12.3/firebase.js","packageURL":"https://www.gstatic.com/firebasejs/live/12.3/firebase.tgz"},"components":{"ai":"https://www.gstatic.com/firebasejs/12.3.0/firebase-ai.js","analytics":"https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js","app":"https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js","app-check":"https://www.gstatic.com/firebasejs/12.3.0/firebase-app-check.js","auth":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js","auth/cordova":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth/cordova.js","auth/web-extension":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth/web-extension.js","functions":"https://www.gstatic.com/firebasejs/12.3.0/firebase-functions.js","firestore":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js","firestore/lite":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore/lite.js","installations":"https://www.gstatic.com/firebasejs/12.3.0/firebase-installations.js","storage":"https://www.gstatic.com/firebasejs/12.3.0/firebase-storage.js","performance":"https://www.gstatic.com/firebasejs/12.3.0/firebase-performance.js","remote-config":"https://www.gstatic.com/firebasejs/12.3.0/firebase-remote-config.js","messaging":"https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging.js","messaging/sw":"https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging/sw.js","database":"https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js","data-connect":"https://www.gstatic.com/firebasejs/12.3.0/firebase-data-connect.js","firestore.memory":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.memory.js"}}
+[info] i  public/index.html is unchanged 
+[info] 
+[info] i  Didn't detect a .git folder. Assuming C:\Users\yathi\OneDrive\Documents\Plurall-Dashboard is the project root. 
+[info] i  Authorizing with GitHub to upload your service account to a GitHub repository's secrets store. 
+[info] 
+[info] Visit this URL on this device to log in:
+[info] https://github.com/login/oauth/authorize?client_id=89cf50f02ac6aaed3484&state=389633508&redirect_uri=http%3A%2F%2Flocalhost%3A9005&scope=read%3Auser%20repo%20public_repo
+[info] 
+[info] Waiting for authentication...
+[debug] [2025-10-06T22:46:56.689Z] >>> [apiv2][query] POST https://github.com/login/oauth/access_token [none]
+[debug] [2025-10-06T22:46:56.689Z] >>> [apiv2][body] POST https://github.com/login/oauth/access_token [stream]
+[debug] [2025-10-06T22:46:56.872Z] <<< [apiv2][status] POST https://github.com/login/oauth/access_token 200
+[debug] [2025-10-06T22:46:56.872Z] <<< [apiv2][body] POST https://github.com/login/oauth/access_token {"access_token":"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","token_type":"bearer","scope":"read:user,repo"}
+[debug] [2025-10-06T22:46:56.877Z] >>> [apiv2][query] GET https://api.github.com/user [none]
+[debug] [2025-10-06T22:46:57.042Z] <<< [apiv2][status] GET https://api.github.com/user 200
+[debug] [2025-10-06T22:46:57.043Z] <<< [apiv2][body] GET https://api.github.com/user {"login":"Yathish27","id":48596315,"node_id":"MDQ6VXNlcjQ4NTk2MzE1","avatar_url":"https://avatars.githubusercontent.com/u/48596315?v=4","gravatar_id":"","url":"https://api.github.com/users/Yathish27","html_url":"https://github.com/Yathish27","followers_url":"https://api.github.com/users/Yathish27/followers","following_url":"https://api.github.com/users/Yathish27/following{/other_user}","gists_url":"https://api.github.com/users/Yathish27/gists{/gist_id}","starred_url":"https://api.github.com/users/Yathish27/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Yathish27/subscriptions","organizations_url":"https://api.github.com/users/Yathish27/orgs","repos_url":"https://api.github.com/users/Yathish27/repos","events_url":"https://api.github.com/users/Yathish27/events{/privacy}","received_events_url":"https://api.github.com/users/Yathish27/received_events","type":"User","user_view_type":"private","site_admin":false,"name":"Yathish N V","company":"New York University","blog":"","location":"New York","email":null,"hireable":null,"bio":"New York University","twitter_username":null,"notification_email":null,"public_repos":33,"public_gists":0,"followers":2,"following":11,"created_at":"2019-03-15T14:57:07Z","updated_at":"2025-10-01T22:12:07Z","private_gists":0,"total_private_repos":3,"owned_private_repos":1,"disk_usage":107116,"collaborators":0,"two_factor_authentication":true,"plan":{"name":"pro","space":976562499,"collaborators":0,"private_repos":9999}}
+[info] 
+[info] +  Success! Logged into GitHub as Yathish27 
+[info] 
+[debug] [2025-10-06T22:47:12.289Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (C:\Users\yathi\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\create-prompt.js:101:37)
+    at Interface.emit (node:events:518:28)
+    at Interface.emit (node:domain:489:12)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1124:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:263:20)
+    at ReadStream.emit (node:events:530:35)
+    at ReadStream.emit (node:domain:489:12)
+    at emitKeys (node:internal/readline/utils:370:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-10-06T22:47:29.711Z] ----------------------------------------------------------------------
+[debug] [2025-10-06T22:47:29.714Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\yathi\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2025-10-06T22:47:29.715Z] CLI Version:   14.18.0
+[debug] [2025-10-06T22:47:29.715Z] Platform:      win32
+[debug] [2025-10-06T22:47:29.715Z] Node Version:  v22.11.0
+[debug] [2025-10-06T22:47:29.715Z] Time:          Mon Oct 06 2025 18:47:29 GMT-0400 (Eastern Daylight Time)
+[debug] [2025-10-06T22:47:29.715Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-06T22:47:29.721Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-06T22:47:29.721Z] > authorizing via signed-in user (yn2426@nyu.edu)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\yathi\OneDrive\Documents\Plurall-Dashboard
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-10-06T22:47:31.723Z] Using project from CLI flag: plurallai
+[debug] [2025-10-06T22:47:31.724Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:47:31.724Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:47:31.725Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/plurallai [none]
+[debug] [2025-10-06T22:47:32.065Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/plurallai 200
+[debug] [2025-10-06T22:47:32.065Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/plurallai {"projectId":"plurallai","projectNumber":"93511943367","displayName":"PlurallAI","name":"projects/plurallai","resources":{"hostingSite":"plurallai"},"state":"ACTIVE","etag":"1_85b2d53b-a278-44f5-8433-ab9eaf52136a"}
+[info] i  Using project plurallai (PlurallAI) 
+[info] 
+=== Hosting Setup
+[debug] [2025-10-06T22:47:32.165Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:47:32.165Z] Checked if tokens are valid: true, expires at: 1759792815355
+[debug] [2025-10-06T22:47:32.165Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/plurallai [none]
+[debug] [2025-10-06T22:47:32.369Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/plurallai 200
+[debug] [2025-10-06T22:47:32.369Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/plurallai {"projectId":"plurallai","projectNumber":"93511943367","displayName":"PlurallAI","name":"projects/plurallai","resources":{"hostingSite":"plurallai"},"state":"ACTIVE","etag":"1_85b2d53b-a278-44f5-8433-ab9eaf52136a"}
+[info] 
+[info] Your public directory is the folder (relative to your project directory) that
+[info] will contain Hosting assets to be uploaded with firebase deploy. If you
+[info] have a build process for your assets, use your build's output directory.
+[info] 
+[debug] [2025-10-06T22:47:35.849Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/releases.json [none]
+[debug] [2025-10-06T22:47:35.886Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/releases.json 200
+[debug] [2025-10-06T22:47:35.886Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/releases.json {"current":{"version":"12.3.0","browserURL":"https://www.gstatic.com/firebasejs/12.3.0/firebase.js","packageURL":"https://www.gstatic.com/firebasejs/12.3.0/firebase.tgz"},"live":{"version":"12.3","browserURL":"https://www.gstatic.com/firebasejs/live/12.3/firebase.js","packageURL":"https://www.gstatic.com/firebasejs/live/12.3/firebase.tgz"},"components":{"ai":"https://www.gstatic.com/firebasejs/12.3.0/firebase-ai.js","analytics":"https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js","app":"https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js","app-check":"https://www.gstatic.com/firebasejs/12.3.0/firebase-app-check.js","auth":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js","auth/cordova":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth/cordova.js","auth/web-extension":"https://www.gstatic.com/firebasejs/12.3.0/firebase-auth/web-extension.js","functions":"https://www.gstatic.com/firebasejs/12.3.0/firebase-functions.js","firestore":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js","firestore/lite":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore/lite.js","installations":"https://www.gstatic.com/firebasejs/12.3.0/firebase-installations.js","storage":"https://www.gstatic.com/firebasejs/12.3.0/firebase-storage.js","performance":"https://www.gstatic.com/firebasejs/12.3.0/firebase-performance.js","remote-config":"https://www.gstatic.com/firebasejs/12.3.0/firebase-remote-config.js","messaging":"https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging.js","messaging/sw":"https://www.gstatic.com/firebasejs/12.3.0/firebase-messaging/sw.js","database":"https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js","data-connect":"https://www.gstatic.com/firebasejs/12.3.0/firebase-data-connect.js","firestore.memory":"https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.memory.js"}}
+[info] i  public/index.html is unchanged 
+[info] 
+[info] i  Didn't detect a .git folder. Assuming C:\Users\yathi\OneDrive\Documents\Plurall-Dashboard is the project root. 
+[info] i  Authorizing with GitHub to upload your service account to a GitHub repository's secrets store. 
+[info] 
+[info] Visit this URL on this device to log in:
+[info] https://github.com/login/oauth/authorize?client_id=89cf50f02ac6aaed3484&state=682214497&redirect_uri=http%3A%2F%2Flocalhost%3A9005&scope=read%3Auser%20repo%20public_repo
+[info] 
+[info] Waiting for authentication...
+[debug] [2025-10-06T22:47:36.287Z] >>> [apiv2][query] POST https://github.com/login/oauth/access_token [none]
+[debug] [2025-10-06T22:47:36.287Z] >>> [apiv2][body] POST https://github.com/login/oauth/access_token [stream]
+[debug] [2025-10-06T22:47:36.479Z] <<< [apiv2][status] POST https://github.com/login/oauth/access_token 200
+[debug] [2025-10-06T22:47:36.479Z] <<< [apiv2][body] POST https://github.com/login/oauth/access_token {"access_token":"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","token_type":"bearer","scope":"read:user,repo"}
+[debug] [2025-10-06T22:47:36.483Z] >>> [apiv2][query] GET https://api.github.com/user [none]
+[debug] [2025-10-06T22:47:36.655Z] <<< [apiv2][status] GET https://api.github.com/user 200
+[debug] [2025-10-06T22:47:36.655Z] <<< [apiv2][body] GET https://api.github.com/user {"login":"Yathish27","id":48596315,"node_id":"MDQ6VXNlcjQ4NTk2MzE1","avatar_url":"https://avatars.githubusercontent.com/u/48596315?v=4","gravatar_id":"","url":"https://api.github.com/users/Yathish27","html_url":"https://github.com/Yathish27","followers_url":"https://api.github.com/users/Yathish27/followers","following_url":"https://api.github.com/users/Yathish27/following{/other_user}","gists_url":"https://api.github.com/users/Yathish27/gists{/gist_id}","starred_url":"https://api.github.com/users/Yathish27/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Yathish27/subscriptions","organizations_url":"https://api.github.com/users/Yathish27/orgs","repos_url":"https://api.github.com/users/Yathish27/repos","events_url":"https://api.github.com/users/Yathish27/events{/privacy}","received_events_url":"https://api.github.com/users/Yathish27/received_events","type":"User","user_view_type":"private","site_admin":false,"name":"Yathish N V","company":"New York University","blog":"","location":"New York","email":null,"hireable":null,"bio":"New York University","twitter_username":null,"notification_email":null,"public_repos":33,"public_gists":0,"followers":2,"following":11,"created_at":"2019-03-15T14:57:07Z","updated_at":"2025-10-01T22:12:07Z","private_gists":0,"total_private_repos":3,"owned_private_repos":1,"disk_usage":107116,"collaborators":0,"two_factor_authentication":true,"plan":{"name":"pro","space":976562499,"collaborators":0,"private_repos":9999}}
+[info] 
+[info] +  Success! Logged into GitHub as Yathish27 
+[info] 
+[debug] [2025-10-06T22:48:46.551Z] >>> [apiv2][query] GET https://api.github.com/repos//actions/secrets/public-key type=owner
+[debug] [2025-10-06T22:48:46.613Z] <<< [apiv2][status] GET https://api.github.com/repos//actions/secrets/public-key 404
+[debug] [2025-10-06T22:48:46.614Z] <<< [apiv2][body] GET https://api.github.com/repos//actions/secrets/public-key {"message":"Not Found","documentation_url":"https://docs.github.com/rest","status":"404"}
+[info] 
+[info] 
+[error] !  The provided authorization cannot be used with this repository. If this repository is in an organization, did you remember to grant access? 
+[info] 
+[info] i  Action required: Visit this URL to ensure access has been granted to the appropriate organization(s) for the Firebase CLI GitHub OAuth App: 
+[info] https://github.com/settings/connections/applications/89cf50f02ac6aaed3484
+[info] 
+[debug] [2025-10-06T22:48:48.776Z] >>> [apiv2][query] GET https://api.github.com/repos//actions/secrets/public-key type=owner
+[debug] [2025-10-06T22:48:48.831Z] <<< [apiv2][status] GET https://api.github.com/repos//actions/secrets/public-key 404
+[debug] [2025-10-06T22:48:48.831Z] <<< [apiv2][body] GET https://api.github.com/repos//actions/secrets/public-key {"message":"Not Found","documentation_url":"https://docs.github.com/rest","status":"404"}
+[info] 
+[info] 
+[error] !  The provided authorization cannot be used with this repository. If this repository is in an organization, did you remember to grant access? 
+[info] 
+[info] i  Action required: Visit this URL to ensure access has been granted to the appropriate organization(s) for the Firebase CLI GitHub OAuth App: 
+[info] https://github.com/settings/connections/applications/89cf50f02ac6aaed3484
+[info] 
+[debug] [2025-10-06T22:48:49.914Z] >>> [apiv2][query] GET https://api.github.com/repos//actions/secrets/public-key type=owner
+[debug] [2025-10-06T22:48:49.963Z] <<< [apiv2][status] GET https://api.github.com/repos//actions/secrets/public-key 404
+[debug] [2025-10-06T22:48:49.963Z] <<< [apiv2][body] GET https://api.github.com/repos//actions/secrets/public-key {"message":"Not Found","documentation_url":"https://docs.github.com/rest","status":"404"}
+[info] 
+[info] 
+[error] !  The provided authorization cannot be used with this repository. If this repository is in an organization, did you remember to grant access? 
+[info] 
+[info] i  Action required: Visit this URL to ensure access has been granted to the appropriate organization(s) for the Firebase CLI GitHub OAuth App: 
+[info] https://github.com/settings/connections/applications/89cf50f02ac6aaed3484
+[info] 
+[debug] [2025-10-06T22:48:51.798Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (C:\Users\yathi\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\create-prompt.js:101:37)
+    at Interface.emit (node:events:518:28)
+    at Interface.emit (node:domain:489:12)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1124:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:263:20)
+    at ReadStream.emit (node:events:530:35)
+    at ReadStream.emit (node:domain:489:12)
+    at emitKeys (node:internal/readline/utils:370:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+[error] 
+[error] Error: An unexpected error has occurred.

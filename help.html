@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plurall AI Help & FAQ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #3b82f6;
+            --color-secondary: #8b5cf6;
+            --color-success: #10b981;
+            --color-text-dark: #1f2937;
+            --color-text-subtle: #6b7280;
+            --color-bg-light: #f9fafb;
+            --color-white: #ffffff;
+            --border-radius: 0.75rem;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-light);
+            margin: 0;
+            padding: 0;
+            color: var(--color-text-dark);
+        }
+
+        /* --- Global Layout --- */
+        .dashboard-layout { display: flex; min-height: 100vh; }
+        .main-content { flex-grow: 1; padding: 2.5rem; max-width: 100%; }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 288px; background-color: var(--color-white); border-right: 1px solid #e5e7eb;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03); padding: 1.5rem 0; display: flex;
+            flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+        }
+        .sidebar-logo { padding: 0 1.5rem; margin-bottom: 2rem; }
+        .sidebar-logo img { max-width: 100%; height: auto; width: 150px; display: block; }
+        .sidebar-nav { padding: 0 1rem; flex-grow: 1; }
+        .nav-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #9ca3af; margin-bottom: 0.75rem; padding: 0 0.5rem; }
+        .nav-item {
+            display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: var(--border-radius);
+            color: var(--color-text-subtle); margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-item:hover:not(.active) { background-color: #f3f4f6; color: var(--color-primary); }
+        .nav-item.active {
+            background-color: var(--color-primary); color: var(--color-white); font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+        .nav-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+        .sidebar .search-bar {
+            padding: 0 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .sidebar .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--color-text-dark);
+        }
+        .sidebar .search-bar input::placeholder {
+            color: var(--color-text-subtle);
+        }
+
+        /* --- Page Specific Styles --- */
+        .page-title { font-size: 2.25rem; font-weight: 800; color: var(--color-text-dark); margin-bottom: 2rem; text-align: center; }
+        .faq-section {
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+            background-color: var(--color-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            padding: 2rem;
+        }
+        .faq-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+        .faq-question svg {
+            transition: transform 0.2s ease-in-out;
+        }
+        .faq-answer {
+            font-size: 0.9rem;
+            color: var(--color-text-subtle);
+            padding-top: 0.5rem;
+            line-height: 1.5;
+            display: none; /* Hidden by default */
+        }
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+        .faq-item.open .faq-question svg {
+            transform: rotate(180deg);
+        }
+
+        .contact-upgrade-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact-card, .upgrade-card {
+            background-color: var(--color-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            padding: 1.5rem;
+            border: 1px solid #f3f4f6;
+        }
+
+        .contact-card h2, .upgrade-card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .contact-info div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: var(--color-text-dark);
+            font-size: 0.9rem;
+        }
+        .contact-info svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            color: var(--color-text-subtle);
+        }
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .social-icons a {
+            display: inline-flex;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            justify-content: center;
+            align-items: center;
+            color: var(--color-text-dark);
+            transition: background-color 0.2s;
+        }
+        .social-icons a:hover {
+            background-color: #d1d5db;
+        }
+        .social-icons svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .upgrade-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-subtle);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        .upgrade-card .upgrade-button {
+            width: 100%;
+            background-color: var(--color-secondary);
+            color: var(--color-white);
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .upgrade-card .upgrade-button:hover {
+            background-color: #7c3aed;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1023px) {
+            .sidebar { display: none; }
+            .main-content { padding: 1.5rem; }
+            .page-title { font-size: 1.75rem; margin-bottom: 1.5rem; }
+            .faq-section { padding: 1rem; }
+            .contact-upgrade-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.jpg" alt="Plurall AI Logo" title="Plurall AI Logo">
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search">
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-section-title">Detection & Analysis</div>
+            <div class="nav-links">
+                <div class="nav-item" onclick="changePage('dashboard')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="changePage('notifications')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notifications</span>
+                </div>
+                <div class="nav-item" onclick="changePage('real_time_monitoring')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg><span>Real-Time Monitoring</span>
+                </div>
+                <div class="nav-item" onclick="changePage('upload')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg><span>Upload</span>
+                </div>
+                <div class="nav-item" onclick="changePage('user_verification')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>User Verification</span>
+                </div>
+                <div class="nav-item" onclick="changePage('content_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Content Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('internal_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 14.8A5 5 0 0 1 18 20h-7.17C6.63 20 2 15.54 2 10.96V4.4A.4.4 0 0 1 2.4 4h5.19c.14 0 .28.05.38.15l1.39 1.57c.18.2.43.32.7.32h4.52c.27 0 .52.12.7.32l1.39 1.57c.1.1.24.15.38.15H21.6c.22 0 .4.18.4.4v3.13C22 12.38 21.72 13.78 21.2 14.8Z"/><circle cx="12" cy="14" r="2"/></svg><span>Internal Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('industry_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg><span>Industry Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('newsroom')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg><span>Newsroom</span>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-nav" style="flex-grow: 0; margin-top: 1rem;">
+            <div style="background-color: #f5f3ff; padding: 1rem; border-radius: var(--border-radius); text-align: center; margin-bottom: 1rem;">
+                <p style="font-size: 0.875rem; font-weight: 600; color: #6d28d9; margin-bottom: 0.5rem;">Get More Personalizations</p>
+                <button style="width: 100%; background-color: #8b5cf6; color: white; font-size: 0.875rem; font-weight: 600; padding: 0.5rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s;">Upgrade Now</button>
+            </div>
+            <div class="nav-section-title">Account</div>
+            <div class="nav-links">
+                <div class="nav-item" onclick="changePage('settings')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Settings</span>
+                </div>
+                <div class="nav-item active" onclick="changePage('help')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>Help</span>
+                </div>
+                <div class="nav-item" onclick="changePage('gaussmass')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>GaussMass 1.0</span>
+                </div>
+                <div class="nav-item" style="color: #ef4444;" onclick="changePage('logout')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg><span>Logout</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <h1 class="page-title">Frequently Asked Questions</h1>
+
+        <div class="faq-section">
+            <div class="faq-item open">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Which pricing plan is right for me?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    We understand that each organization is unique, requiring specific features to support its workflows and projects. Above you can see the features included in the different plans to support your needs. If you need help in choosing the right plan for you, reach out to our sales team.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    How does Plurall AI detect fraud and deepfakes?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Our AI models utilize advanced machine learning algorithms, including neural networks trained on vast datasets of both genuine and manipulated content. For fraud detection, we analyze behavioral patterns, voice biometrics, and contextual cues. For deepfakes, we look for subtle inconsistencies in visual and auditory data that are undetectable to the human eye or ear.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    What types of businesses can benefit from Plurall AI?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Plurall AI is designed to benefit a wide range of industries, including finance, insurance, e-commerce, customer service, and social media platforms. Any business that deals with user-generated content, online transactions, or relies on secure digital interactions can leverage our technology to enhance security and build trust.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Can I upgrade or downgrade my subscription plan?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Yes, you can easily upgrade or downgrade your subscription plan at any time through your account settings. Changes will take effect immediately, and your billing will be adjusted proportionally.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Is there a free trial available?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Yes, we offer a 14-day free trial for new users to explore the basic features of Plurall AI. No credit card is required to start your trial.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Are there any additional fees beyond the subscription cost?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Our subscription plans are designed to be all-inclusive for the features and usage tiers specified. However, custom integrations, enterprise-level support, or exceeding high usage limits may incur additional, pre-agreed-upon fees.
+                </div>
+            </div>
+             <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    How can I manage my billing?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    You can manage all billing-related aspects, including payment methods, invoices, and subscription details, directly from the 'Settings' section of your Plurall AI dashboard under 'Billing & Plans'.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Are there limits on API calls?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    API call limits vary depending on your chosen subscription plan. Our basic plans include a generous allowance, and higher-tier plans offer significantly increased limits. Custom enterprise solutions can be tailored to meet specific high-volume requirements. You can monitor your current usage in the 'API Usage' section of your dashboard.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    How does Plurall AI handle user data?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    We prioritize data privacy and security. Plurall AI adheres to strict data protection regulations, including GDPR and CCPA. All data is anonymized and encrypted where appropriate, and we never share or sell user data to third parties. Our full privacy policy is available on our website.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    What measures are in place to ensure data security?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-answer">
+                    Plurall AI employs industry-leading security practices, including end-to-end encryption, multi-factor authentication, regular security audits, and compliance with ISO 27001 standards. Our infrastructure is hosted on secure cloud platforms with robust physical and network security measures.
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-upgrade-grid">
+            <div class="card contact-card">
+                <h2>Contact Us</h2>
+                <div class="contact-info">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-3.67-3.67A19.79 19.79 0 0 1 2 4.18 2 2 0 0 1 4.18 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        TBD
+                    </div>
+                    <div>
+                        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        info@plurall.ai
+                    </div>
+                </div>
+                <div class="social-icons">
+                    <span>Social</span>
+                    <a href="https://x.com/plurall_ai" aria-label="X (Twitter)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17-19 11.6 11.4 12.2 24.7 5.7 27-2.4V8.5L22 4Z"/></svg>
+                    </a>
+                    <a href="https://www.instagram.com/plurallai/" aria-label="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.5" y1="6.5" y2="6.5"/></svg>
+                    </a>
+                    <a href="https://www.linkedin.com/company/plurall-ai/posts/?feedView=all" aria-label="LinkedIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="card upgrade-card" style="background-color: #f5f3ff; border: 1px solid #ede9fe;">
+                <h2>Get More Personalizations</h2>
+                <p>Scale your business with API access and custom AI models. Want to find out the right plan for you? Contact us!</p>
+                <button class="upgrade-button">Upgrade Now</button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const PAGE_MAP = {
+        'dashboard': 'Dashboard.html',
+        'notifications': 'notifications.html',
+        'real_time_monitoring': 'real-time-monitoring.html',
+        'upload': 'upload.html',
+        'user_verification': 'user-verification.html',
+        'content_analysis': 'content-analysis.html',
+        'internal_analysis': 'internal-analysis.html',
+        'industry_analysis': 'industry-analysis.html',
+        'newsroom': 'newsroom.html',
+        'settings': 'settings.html',
+        'help': 'help.html',
+        'gaussmass': 'gaussmass.html',
+        'logout': 'logout.html'
+    };
+
+    window.changePage = function(page) {
+        const file = PAGE_MAP[page];
+        if (file) {
+            window.location.assign(file);
+        } else {
+            console.error(`Unknown page requested: ${page}`);
+        }
+    }
+
+    function toggleFaq(element) {
+        const parent = element.closest('.faq-item');
+        parent.classList.toggle('open');
+    }
+</script>
+
+</body>
+</html>

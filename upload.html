@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plurall AI - Upload Material</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #3b82f6; /* Blue */
+            --color-secondary: #8b5cf6; /* Purple */
+            --color-success: #10b981; /* Green */
+            --color-warning: #f59e0b; /* Orange */
+            --color-danger: #ef4444; /* Red */
+            --color-text-dark: #1f2937;
+            --color-text-subtle: #6b7280;
+            --color-bg-light: #f9fafb;
+            --color-white: #ffffff;
+            --border-radius: 0.75rem; /* 12px */
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-light);
+            margin: 0;
+            padding: 0;
+            color: var(--color-text-dark);
+        }
+
+        /* --- Layout --- */
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 288px; /* w-72 */
+            background-color: var(--color-white);
+            border-right: 1px solid #e5e7eb;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03);
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh; /* Full height for desktop */
+        }
+        .sidebar-logo {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .sidebar-logo img {
+            max-width: 100%;
+            height: auto;
+            width: 150px;
+            display: block;
+        }
+        .sidebar-search {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+        }
+        .search-input-wrapper input {
+            border: none;
+            outline: none;
+            background: transparent;
+            flex-grow: 1;
+            font-size: 0.9rem;
+            color: var(--color-text-dark);
+        }
+        .search-input-wrapper input::placeholder {
+            color: var(--color-text-subtle);
+        }
+        .search-input-wrapper svg {
+            color: var(--color-text-subtle);
+            width: 18px;
+            height: 18px;
+            margin-right: 0.5rem;
+        }
+        .sidebar-nav {
+            padding: 0 1rem;
+            flex-grow: 1;
+        }
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 0.75rem;
+            padding: 0 0.5rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            color: var(--color-text-subtle);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item:hover:not(.active) {
+            background-color: #f3f4f6;
+            color: var(--color-primary);
+        }
+        .nav-item.active {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+        }
+
+        /* Upgrade Card */
+        .upgrade-card {
+            padding: 1.5rem;
+        }
+        .upgrade-card-content {
+            background-color: #f5f3ff;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        .upgrade-card-content p {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6d28d9;
+            margin-bottom: 0.5rem;
+        }
+        .upgrade-card-content button {
+            width: 100%;
+            background-color: #8b5cf6;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .upgrade-card-content button:hover {
+            background-color: #7c4dff;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            padding: 2.5rem;
+        }
+        .page-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin-bottom: 2rem;
+        }
+
+        /* --- Upload Form --- */
+        .upload-card {
+            background-color: var(--color-white);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #f3f4f6;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: var(--border-radius);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            background-color: #f9fafb;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area svg {
+            color: var(--color-text-subtle);
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area p {
+            font-size: 1rem;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area span {
+            font-size: 0.875rem;
+            color: var(--color-text-subtle);
+            display: block;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area button {
+            background-color: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area button:hover {
+            background-color: #eff6ff;
+        }
+
+        .form-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .radio-option input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .radio-option input[type="radio"]:checked {
+            border-color: var(--color-primary);
+        }
+
+        .radio-option input[type="radio"]:checked::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.6rem;
+            height: 0.6rem;
+            border-radius: 50%;
+            background-color: var(--color-primary);
+            transition: all 0.2s;
+        }
+
+        .radio-option label {
+            font-size: 0.95rem;
+            color: var(--color-text-dark);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 640px) { /* sm breakpoint */
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-field label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-dark);
+        }
+
+        .form-field input[type="text"],
+        .form-field input[type="date"],
+        .form-field textarea {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            color: var(--color-text-dark);
+            background-color: #f9fafb;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            -webkit-appearance: none; /* For date input arrow */
+        }
+         .form-field input[type="date"] {
+            padding-right: 2.5rem; /* Space for date icon */
+        }
+
+        .form-field input[type="text"]:focus,
+        .form-field input[type="date"]:focus,
+        .form-field textarea:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-field textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .date-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .date-input-wrapper input {
+            flex-grow: 1;
+        }
+
+        .date-input-wrapper svg {
+            position: absolute;
+            right: 1rem;
+            color: var(--color-text-subtle);
+            pointer-events: none;
+            width: 20px;
+            height: 20px;
+        }
+
+        .submit-button {
+            width: auto;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            padding: 0.8rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            float: right; /* Align to bottom right */
+            margin-top: 1rem;
+        }
+
+        .submit-button:hover {
+            background-color: #2563eb;
+        }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 1023px) {
+            .sidebar {
+                display: none; /* Hide sidebar on mobile for simplicity, or use a mobile menu component */
+            }
+            .main-content {
+                padding: 1.5rem;
+            }
+            .upload-card {
+                padding: 1.5rem;
+            }
+            .page-title {
+                font-size: 1.75rem;
+            }
+            .radio-group {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.jpg" alt="Plurall AI Logo" title="Plurall AI Logo">
+        </div>
+
+        <div class="sidebar-search">
+            <div class="search-input-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search">
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <div class="nav-section-title">Detection & Analysis</div>
+            <div class="nav-links">
+                <div id="nav-dashboard" class="nav-item" onclick="changePage('dashboard')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="changePage('notifications')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.375 21a2 2 0 0 0 3.25 0"/></svg>
+                    <span>Notifications</span>
+                </div>
+                <div class="nav-item" onclick="changePage('real_time_monitoring')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>Real-Time Monitoring</span>
+                </div>
+                <div id="nav-upload" class="nav-item active" onclick="changePage('upload')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.27 10.96L10.96 21.27a2 2 0 0 1-2.83 0L2.73 15.1a2 2 0 0 1 0-2.83L13.04 2.73a2 2 0 0 1 2.83 0Z"/><path d="m14 7 3 3"/></svg>
+                    <span>Upload</span>
+                </div>
+                <div class="nav-item" onclick="changePage('user_verification')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>User Verification</span>
+                </div>
+                <div class="nav-item" onclick="changePage('content_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    <span>Content Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('internal_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    <span>Internal Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('industry_analysis')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>Industry Analysis</span>
+                </div>
+                <div class="nav-item" onclick="changePage('newsroom')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 12h-6"/><path d="M15 9l-3 3 3 3"/><path d="M10 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H10z"/><path d="M2 12s2 2 4 0 4-4 4 0"/></svg>
+                    <span>Newsroom</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav" style="flex-grow: 0; margin-top: 1rem;">
+            <div class="nav-section-title">Account</div>
+            <div class="nav-links">
+                <div id="nav-settings" class="nav-item" onclick="changePage('settings')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.35a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 1 1 1.73v.44a2 2 0 0 1-1 1.73l-.15.08a2 2 0 0 0-.73 2.73l.78 1.35a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 1-1.73v.18a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.35a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.73v-.44a2 2 0 0 1 1-1.73l.15-.08a2 2 0 0 0 .73-2.73l-.78-1.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Settings</span>
+                </div>
+                <div class="nav-item" onclick="changePage('help')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    <span>Help</span>
+                </div>
+                <div class="nav-item" onclick="changePage('gaussmass')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    <span>GaussMass 1.0</span>
+                </div>
+                <div class="nav-item" style="color: #ef4444;" onclick="changePage('logout')">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-card-content">
+                <p>Get More Personalizations</p>
+                <button>Upgrade Now</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <h1 class="page-title">Upload Material</h1>
+
+        <div class="upload-card">
+            <div class="upload-area">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.05 0 0 1 .5 8.099"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+                <p>Select a file or drag and drop here</p>
+                <span>TXT, CSV, XLSX or PDF, file size no more than 10MB</span>
+                <button>SELECT FILE</button>
+            </div>
+
+            <div class="form-section-title">File Type</div>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="file_type" value="client_information" checked>
+                    Client Information
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="file_type" value="lead_list">
+                    Lead List
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="file_type" value="call_script">
+                    Call Script
+                </label>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="file_id">File ID</label>
+                    <input type="text" id="file_id" value="#876370">
+                </div>
+                <div class="form-field">
+                    <label for="date">Date</label>
+                    <div class="date-input-wrapper">
+                        <input type="date" id="date" value="2021-12-01">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-field" style="margin-bottom: 2rem;">
+                <label for="company_name">Company Name</label>
+                <input type="text" id="company_name" value="Insurify">
+            </div>
+
+            <div class="form-field">
+                <label for="description">Description</label>
+                <textarea id="description"></textarea>
+            </div>
+
+            <button class="submit-button">Upload Document</button>
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+    const PAGE_MAP = {
+        'dashboard': 'Dashboard.html',
+        'notifications': 'notifications.html',
+        'real_time_monitoring': 'real-time-monitoring.html',
+        'upload': 'upload.html',
+        'user_verification': 'user-verification.html',
+        'content_analysis': 'content-analysis.html',
+        'internal_analysis': 'internal-analysis.html',
+        'industry_analysis': 'industry-analysis.html',
+        'newsroom': 'newsroom.html',
+        'settings': 'settings.html',
+        'help': 'help.html',
+        'gaussmass': 'gaussmass.html',
+        'logout': 'logout.html'
+    };
+
+    window.changePage = function(page) {
+        const file = PAGE_MAP[page];
+        if (file) {
+            window.location.assign(file);
+        } else {
+            console.error(`Unknown page requested: ${page}`);
+        }
+    }
+
+    // Highlight active nav item
+    document.addEventListener('DOMContentLoaded', () => {
+        const path = window.location.pathname;
+        const currentPage = path.substring(path.lastIndexOf('/') + 1);
+
+        for (const [key, value] of Object.entries(PAGE_MAP)) {
+            if (value === currentPage) {
+                const navItem = document.getElementById(`nav-${key}`);
+                if (navItem) {
+                    navItem.classList.add('active');
+                }
+            }
+        }
+    });
+
+    // Set default date for the date input
+    document.addEventListener('DOMContentLoaded', () => {
+        const dateInput = document.getElementById('date');
+        // Check if the value is not already set by HTML for better dynamic handling
+        if (!dateInput.value) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+        }
+    });
+</script>
+
+</body>
+</html>
