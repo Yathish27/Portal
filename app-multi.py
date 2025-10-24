@@ -6,7 +6,7 @@ import os
 
 from supabase import create_client, Client
 
-st.set_page_config(page_title="DeepFake Detector: Buildings", page_icon="Light_Icon.png", layout="centered")
+st.set_page_config(page_title="Plurall AI", page_icon="Light_Icon.png", layout="centered")
 
 hide_st_style = """
             <style>
@@ -118,3 +118,4 @@ if uploaded_files:
                 st.error("There was an error submitting your feedback. Please try again.")
 
 print('Search completed.')
+
